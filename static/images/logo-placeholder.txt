@@ -1,0 +1,3 @@
+# MV Tutors Logo Placeholder
+# Please replace this file with your actual mvtutors-logo.png image
+# Recommended size: 200x60 pixels or similar aspect ratio

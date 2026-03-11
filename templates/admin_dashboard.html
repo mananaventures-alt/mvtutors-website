@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - MV Tutors</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .text-mv-blue { color: #2563EB; }
+        .bg-mv-blue { background-color: #2563EB; }
+        .border-mv-blue { border-color: #2563EB; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-semibold text-mv-blue">MV Tutors Admin Dashboard</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">Welcome, Admin</span>
+                    <a href="{{ url_for('admin_logout') }}" class="bg-gray-200 hover:bg-gray-300 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 transition-colors">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Tab Navigation -->
+        <div class="mb-8">
+            <div class="sm:hidden">
+                <select id="tabs" class="block w-full rounded-lg border-gray-300 focus:border-mv-blue focus:ring-mv-blue">
+                    <option value="tutor-requests">Tutor Requests</option>
+                    <option value="tutor-applications">Tutor Applications</option>
+                    <option value="approved-tutors">Approved Tutors</option>
+                    <option value="contact-messages">Contact Messages</option>
+                </select>
+            </div>
+            <div class="hidden sm:block">
+                <nav class="flex space-x-8">
+                    <button onclick="showTab('tutor-requests')" class="tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-mv-blue text-mv-blue" data-tab="tutor-requests">
+                        Tutor Requests ({{ tutor_requests|length }})
+                    </button>
+                    <button onclick="showTab('tutor-applications')" class="tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="tutor-applications">
+                        Tutor Applications ({{ tutor_applications|length }})
+                    </button>
+                    <button onclick="showTab('approved-tutors')" class="tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="approved-tutors">
+                        Approved Tutors ({{ approved_tutors|length }})
+                    </button>
+                    <button onclick="showTab('contact-messages')" class="tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="contact-messages">
+                        Contact Messages ({{ contact_messages|length }})
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Tutor Requests Tab -->
+        <div id="tutor-requests" class="tab-content">
+            <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Tutor Requests</h3>
+                    <p class="text-sm text-gray-600 mt-1">{{ tutor_requests|length }} total requests</p>
+                </div>
+                <!-- Scrollable table container -->
+                <div class="overflow-auto max-h-96">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time Requested</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Name</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Group Size</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Institution</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grade/Year</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subjects/Modules</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comments</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for request in tutor_requests %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex items-center space-x-2">
+                                        <!-- Delete Button -->
+                                        <button class="delete-request-btn text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
+                                                data-id="{{ request.id }}" 
+                                                data-name="{{ request.full_name }}"
+                                                title="Delete Request">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <select class="status-dropdown text-xs px-2 py-1 rounded border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                                        {% if request.status == 'new_request' or request.status == 'pending' %}bg-yellow-50 text-yellow-800
+                                        {% elif request.status == 'contacted' %}bg-blue-50 text-blue-800
+                                        {% elif request.status == 'invoice_sent' %}bg-purple-50 text-purple-800
+                                        {% elif request.status == 'tutor_assigned' %}bg-green-50 text-green-800
+                                        {% elif request.status == 'not_interested' %}bg-gray-50 text-gray-800
+                                        {% elif request.status == 'spam' %}bg-red-50 text-red-800
+                                        {% else %}bg-yellow-50 text-yellow-800{% endif %}"
+                                        data-request-id="{{ request.id }}"
+                                        onchange="updateRequestStatus(this)">
+                                        <option value="new_request" {% if request.status == 'new_request' or request.status == 'pending' %}selected{% endif %}>New Request</option>
+                                        <option value="contacted" {% if request.status == 'contacted' %}selected{% endif %}>Contacted</option>
+                                        <option value="invoice_sent" {% if request.status == 'invoice_sent' %}selected{% endif %}>Invoice Sent</option>
+                                        <option value="tutor_assigned" {% if request.status == 'tutor_assigned' %}selected{% endif %}>Tutor Assigned</option>
+                                        <option value="not_interested" {% if request.status == 'not_interested' %}selected{% endif %}>Not Interested</option>
+                                        <option value="spam" {% if request.status == 'spam' %}selected{% endif %}>Spam</option>
+                                    </select>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ request.created_at|datetimeformat }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ request.full_name or 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <a href="mailto:{{ request.email }}" class="text-blue-600 hover:text-blue-800">{{ request.email or 'N/A' }}</a>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <a href="tel:{{ request.contact_number }}" class="text-blue-600 hover:text-blue-800">{{ request.contact_number or 'N/A' }}</a>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="px-2 py-1 text-xs rounded-full {% if request.tutoring_service == '1_on_1' %}bg-blue-100 text-blue-800{% else %}bg-purple-100 text-purple-800{% endif %}">
+                                        {{ request.tutoring_service.replace('_', ' ').title() if request.tutoring_service else 'N/A' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ request.group_size if request.group_size else 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ request.institution.replace('_', ' ').title() if request.institution else 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ request.grade_year.replace('_', ' ').title() if request.grade_year else 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="px-2 py-1 text-xs rounded-full {% if request.tutoring_type == 'online' %}bg-green-100 text-green-800{% else %}bg-orange-100 text-orange-800{% endif %}">
+                                        {{ request.tutoring_type.title() if request.tutoring_type else 'N/A' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-lg min-w-60">
+                                    <div class="break-words" title="{{ request.subjects }}">
+                                        {{ request.subjects.replace('_', ' ') if request.subjects else 'N/A' }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-xs">
+                                    <div class="truncate" title="{{ request.reason }}">
+                                        {{ (request.reason[:30] + '...') if request.reason and request.reason|length > 30 else (request.reason or 'N/A') }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ request.start_date if request.start_date else 'N/A' }}</td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-xs">
+                                    <div class="truncate" title="{{ request.comments }}">
+                                        {{ (request.comments[:30] + '...') if request.comments and request.comments|length > 30 else (request.comments or 'N/A') }}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="15" class="px-4 py-8 text-center text-gray-500">
+                                    <div class="flex flex-col items-center">
+                                        <svg class="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <p class="text-lg font-medium">No tutor requests found</p>
+                                        <p class="text-sm">New requests will appear here when submitted.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tutor Applications Tab -->
+        <div id="tutor-applications" class="tab-content hidden">
+            <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Tutor Applications</h3>
+                    <p class="text-sm text-gray-600 mt-1">{{ tutor_applications|length }} total applications</p>
+                </div>
+                <!-- Scrollable table container with horizontal scroll -->
+                <div class="overflow-auto max-h-96">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time Applied</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Name</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date of Birth</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Number</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Highest Qualification</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Institution</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year Completed</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Student</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Institution</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Year</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Institutions to Tutor</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subjects to Tutor</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tutoring Method</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Availability</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transport</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preferred Locations</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profile Picture</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matric Certificate</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">University Results</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CV</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for application in tutor_applications %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex items-center space-x-2">
+                                        <!-- Delete Button -->
+                                        <button class="delete-btn text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
+                                                data-id="{{ application.id }}" 
+                                                data-name="{{ application.full_name }}"
+                                                title="Delete Application">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>                                        <!-- Approve/Reject Buttons -->
+                                        <div class="flex space-x-1">
+                                            {% if application.status == 'pending' %}
+                                            <form method="POST" action="{{ url_for('approve_tutor', application_id=application.id) }}" class="inline">
+                                                <button type="submit" class="text-green-600 hover:text-green-900 text-xs px-2 py-1 rounded hover:bg-green-50 transition-colors">Approve</button>
+                                            </form>
+                                            <form method="POST" action="{{ url_for('reject_tutor', application_id=application.id) }}" class="inline">
+                                                <button type="submit" class="text-red-600 hover:text-red-900 text-xs px-2 py-1 rounded hover:bg-red-50 transition-colors">Reject</button>
+                                            </form>
+                                            {% else %}
+                                            <span class="text-gray-400 text-xs">{{ application.status.title() }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if application.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                        {% elif application.status == 'approved' %}bg-green-100 text-green-800
+                                        {% elif application.status == 'rejected' %}bg-red-100 text-red-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ application.status.title() if application.status else 'Unknown' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ application.created_at|datetimeformat }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ application.full_name or 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <a href="mailto:{{ application.email }}" class="text-blue-600 hover:text-blue-800">{{ application.email or 'N/A' }}</a>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <a href="tel:{{ application.phone }}" class="text-blue-600 hover:text-blue-800">{{ application.phone or 'N/A' }}</a>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ application.date_of_birth or 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ application.id_number or 'N/A' }}</td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-xs">
+                                    <div class="truncate" title="{{ application.address }}">
+                                        {{ (application.address[:30] + '...') if application.address and application.address|length > 30 else (application.address or 'N/A') }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ application.highest_qualification.replace('_', ' ').title() if application.highest_qualification else 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ application.institution or 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ application.year_completed or 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="px-2 py-1 text-xs rounded-full {% if application.current_student %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ 'Yes' if application.current_student else 'No' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ application.current_institution or 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ application.current_year or 'N/A' }}</td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-lg min-w-40">
+                                    <div class="break-words" title="{{ application.institutions_to_tutor }}">
+                                        {{ application.institutions_to_tutor.replace('_', ' ').replace(',', ', ').title() if application.institutions_to_tutor else 'N/A' }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-lg min-w-60">
+                                    <div class="break-words" title="{{ application.subjects_to_tutor }}">
+                                        {{ application.subjects_to_tutor.replace('_', ' ') if application.subjects_to_tutor else 'N/A' }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="px-2 py-1 text-xs rounded-full {% if application.tutoring_method == 'online' %}bg-green-100 text-green-800{% elif application.tutoring_method == 'in_person' %}bg-orange-100 text-orange-800{% else %}bg-purple-100 text-purple-800{% endif %}">
+                                        {{ application.tutoring_method.replace('_', ' ').title() if application.tutoring_method else 'N/A' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-xs">
+                                    <div class="truncate" title="{{ application.tutoring_experience }}">
+                                        {{ (application.tutoring_experience[:30] + '...') if application.tutoring_experience and application.tutoring_experience|length > 30 else (application.tutoring_experience or 'N/A') }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-xs">
+                                    <div class="truncate" title="{{ application.availability }}">
+                                        {{ (application.availability[:30] + '...') if application.availability and application.availability|length > 30 else (application.availability or 'N/A') }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="px-2 py-1 text-xs rounded-full {% if application.transport %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ 'Yes' if application.transport else 'No' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-xs">
+                                    <div class="truncate" title="{{ application.preferred_locations }}">
+                                        {{ (application.preferred_locations[:30] + '...') if application.preferred_locations and application.preferred_locations|length > 30 else (application.preferred_locations or 'N/A') }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {% if application.profile_picture_filename %}
+                                        <a href="{{ url_for('view_file', application_id=application.id, file_type='profile_picture') }}" target="_blank" class="text-blue-600 hover:text-blue-800" title="{{ application.profile_picture_filename }}">📷 View</a>
+                                    {% else %}
+                                        <span class="text-gray-400">None</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {% if application.matric_certificate_filename %}
+                                        <a href="{{ url_for('view_file', application_id=application.id, file_type='matric_certificate') }}" target="_blank" class="text-blue-600 hover:text-blue-800" title="{{ application.matric_certificate_filename }}">📄 View</a>
+                                    {% else %}
+                                        <span class="text-gray-400">None</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {% if application.varsity_results_filename %}
+                                        <a href="{{ url_for('view_file', application_id=application.id, file_type='varsity_results') }}" target="_blank" class="text-blue-600 hover:text-blue-800" title="{{ application.varsity_results_filename }}">📄 View</a>
+                                    {% else %}
+                                        <span class="text-gray-400">None</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {% if application.cv_filename %}
+                                        <a href="{{ url_for('view_file', application_id=application.id, file_type='cv') }}" target="_blank" class="text-blue-600 hover:text-blue-800" title="{{ application.cv_filename }}">📄 View</a>
+                                    {% else %}
+                                        <span class="text-gray-400">None</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="26" class="px-4 py-8 text-center text-gray-500">
+                                    <div class="flex flex-col items-center">
+                                        <svg class="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <p class="text-lg font-medium">No tutor applications found</p>
+                                        <p class="text-sm">New applications will appear here when submitted.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approved Tutors Tab -->
+        <div id="approved-tutors" class="tab-content hidden">
+            <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Approved Tutors</h3>
+                    <div class="mt-4">
+                        <input type="text" id="tutor-search" placeholder="Search tutors by name, subjects, or qualifications..." 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-mv-blue focus:border-mv-blue">
+                    </div>
+                </div>
+                <!-- Scrollable table container with horizontal scroll -->
+                <div class="overflow-auto max-h-96">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time Approved</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Name</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date of Birth</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Number</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Highest Qualification</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Institution</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year Completed</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Student</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Institution</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Year</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Institutions to Tutor</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subjects to Tutor</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tutoring Method</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Availability</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transport</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preferred Locations</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profile Picture</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matric Certificate</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">University Results</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CV</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="tutors-table-body">
+                            {% for tutor in approved_tutors %}
+                            <tr class="tutor-row hover:bg-gray-50" data-name="{{ tutor.full_name.lower() }}" data-subjects="{{ tutor.subjects_to_tutor.lower() if tutor.subjects_to_tutor else '' }}" data-qualifications="{{ tutor.highest_qualification.lower() if tutor.highest_qualification else '' }}">
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Approved
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ tutor.approved_at|datetimeformat if tutor.approved_at else (tutor.created_at|datetimeformat if tutor.created_at else 'N/A') }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ tutor.full_name or 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <a href="mailto:{{ tutor.email }}" class="text-blue-600 hover:text-blue-800">{{ tutor.email or 'N/A' }}</a>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <a href="tel:{{ tutor.phone }}" class="text-blue-600 hover:text-blue-800">{{ tutor.phone or 'N/A' }}</a>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ tutor.date_of_birth or 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ tutor.id_number or 'N/A' }}</td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-xs">
+                                    <div class="truncate" title="{{ tutor.address }}">
+                                        {{ (tutor.address[:30] + '...') if tutor.address and tutor.address|length > 30 else (tutor.address or 'N/A') }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ tutor.highest_qualification.replace('_', ' ').title() if tutor.highest_qualification else 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ tutor.institution or 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ tutor.year_completed or 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="px-2 py-1 text-xs rounded-full {% if tutor.current_student %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ 'Yes' if tutor.current_student else 'No' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ tutor.current_institution or 'N/A' }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ tutor.current_year or 'N/A' }}</td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-lg min-w-40">
+                                    <div class="break-words" title="{{ tutor.institutions_to_tutor }}">
+                                        {{ tutor.institutions_to_tutor.replace('_', ' ').replace(',', ', ').title() if tutor.institutions_to_tutor else 'N/A' }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-lg min-w-60">
+                                    <div class="break-words" title="{{ tutor.subjects_to_tutor }}">
+                                        {{ tutor.subjects_to_tutor.replace('_', ' ') if tutor.subjects_to_tutor else 'N/A' }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="px-2 py-1 text-xs rounded-full {% if tutor.tutoring_method == 'online' %}bg-green-100 text-green-800{% elif tutor.tutoring_method == 'in_person' %}bg-orange-100 text-orange-800{% else %}bg-purple-100 text-purple-800{% endif %}">
+                                        {{ tutor.tutoring_method.replace('_', ' ').title() if tutor.tutoring_method else 'N/A' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-xs">
+                                    <div class="truncate" title="{{ tutor.tutoring_experience }}">
+                                        {{ (tutor.tutoring_experience[:30] + '...') if tutor.tutoring_experience and tutor.tutoring_experience|length > 30 else (tutor.tutoring_experience or 'N/A') }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-xs">
+                                    <div class="truncate" title="{{ tutor.availability }}">
+                                        {{ (tutor.availability[:30] + '...') if tutor.availability and tutor.availability|length > 30 else (tutor.availability or 'N/A') }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="px-2 py-1 text-xs rounded-full {% if tutor.transport %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ 'Yes' if tutor.transport else 'No' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500 max-w-xs">
+                                    <div class="truncate" title="{{ tutor.preferred_locations }}">
+                                        {{ (tutor.preferred_locations[:30] + '...') if tutor.preferred_locations and tutor.preferred_locations|length > 30 else (tutor.preferred_locations or 'N/A') }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {% if tutor.profile_picture_filename %}
+                                        <a href="{{ url_for('view_file', application_id=tutor.id, file_type='profile_picture') }}" target="_blank" class="text-blue-600 hover:text-blue-800" title="{{ tutor.profile_picture_filename }}">📷 View</a>
+                                    {% else %}
+                                        <span class="text-gray-400">None</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {% if tutor.matric_certificate_filename %}
+                                        <a href="{{ url_for('view_file', application_id=tutor.id, file_type='matric_certificate') }}" target="_blank" class="text-blue-600 hover:text-blue-800" title="{{ tutor.matric_certificate_filename }}">📄 View</a>
+                                    {% else %}
+                                        <span class="text-gray-400">None</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {% if tutor.varsity_results_filename %}
+                                        <a href="{{ url_for('view_file', application_id=tutor.id, file_type='varsity_results') }}" target="_blank" class="text-blue-600 hover:text-blue-800" title="{{ tutor.varsity_results_filename }}">📄 View</a>
+                                    {% else %}
+                                        <span class="text-gray-400">None</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {% if tutor.cv_filename %}
+                                        <a href="{{ url_for('view_file', application_id=tutor.id, file_type='cv') }}" target="_blank" class="text-blue-600 hover:text-blue-800" title="{{ tutor.cv_filename }}">📄 View</a>
+                                    {% else %}
+                                        <span class="text-gray-400">None</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="25" class="px-4 py-8 text-center text-gray-500">
+                                    <div class="flex flex-col items-center">
+                                        <svg class="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                        </svg>
+                                        <p class="text-lg font-medium">No approved tutors found</p>
+                                        <p class="text-sm">Approved tutors will appear here after applications are approved.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Messages Tab -->
+        <div id="contact-messages" class="tab-content hidden">
+            <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Contact Messages</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-96">Message</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for message in contact_messages %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex items-center space-x-2">
+                                        <!-- Email Reply Button -->
+                                        <a href="mailto:{{ message.email }}?subject=Re: {{ message.subject }}&body=Hi {{ message.name }},%0D%0A%0D%0AThank you for contacting MV Tutors.%0D%0A%0D%0A" 
+                                           class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors"
+                                           title="Reply via Email">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                            </svg>
+                                        </a>
+                                        
+                                        <!-- Status Update Dropdown -->
+                                        <select class="message-status-select text-xs border border-gray-300 rounded px-2 py-1" 
+                                                data-message-id="{{ message.id }}" 
+                                                onchange="updateMessageStatus(this)">
+                                            <option value="unread" {% if message.status == 'unread' %}selected{% endif %}>Unread</option>
+                                            <option value="read" {% if message.status == 'read' %}selected{% endif %}>Read</option>
+                                            <option value="replied" {% if message.status == 'replied' %}selected{% endif %}>Replied</option>
+                                            <option value="resolved" {% if message.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                                        </select>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ message.created_at|datetimeformat }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ message.name or 'N/A' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <a href="mailto:{{ message.email }}" class="text-blue-600 hover:text-blue-800">{{ message.email or 'N/A' }}</a>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {% if message.phone %}
+                                        <a href="tel:{{ message.phone }}" class="text-blue-600 hover:text-blue-800">{{ message.phone }}</a>
+                                    {% else %}
+                                        <span class="text-gray-400">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-500">{{ message.subject or 'N/A' }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-500 w-96">
+                                    <div class="break-words" title="{{ message.message }}">
+                                        {{ message.message or 'N/A' }}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No contact messages found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.add('hidden'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.remove('hidden');
+            
+            // Update tab button styles
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('border-mv-blue', 'text-mv-blue');
+                button.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeButton) {
+                activeButton.classList.remove('border-transparent', 'text-gray-500');
+                activeButton.classList.add('border-mv-blue', 'text-mv-blue');
+            }
+        }
+
+        // Tutor search functionality
+        document.getElementById('tutor-search').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const tutorRows = document.querySelectorAll('.tutor-row');
+            
+            tutorRows.forEach(row => {
+                const name = row.dataset.name;
+                const subjects = row.dataset.subjects;
+                const qualifications = row.dataset.qualifications;
+                
+                if (name.includes(searchTerm) || subjects.includes(searchTerm) || qualifications.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Mobile tab selector
+        document.getElementById('tabs').addEventListener('change', function(e) {
+            showTab(e.target.value);
+        });
+
+        // Function to update request status
+        function updateRequestStatus(selectElement) {
+            const requestId = selectElement.getAttribute('data-request-id');
+            const newStatus = selectElement.value;
+            
+            // Show loading state
+            selectElement.disabled = true;
+            selectElement.style.opacity = '0.6';
+            
+            // Make API call to update status
+            fetch('/admin/update-request-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    request_id: requestId,
+                    status: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update dropdown styling based on new status
+                    updateDropdownStyling(selectElement, newStatus);
+                    
+                    // Show success message
+                    showNotification('Status updated successfully!', 'success');
+                } else {
+                    // Revert to previous value on error
+                    selectElement.value = selectElement.getAttribute('data-previous-value') || 'new_request';
+                    showNotification('Error updating status: ' + (data.error || 'Unknown error'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Revert to previous value on error
+                selectElement.value = selectElement.getAttribute('data-previous-value') || 'new_request';
+                showNotification('Network error. Please try again.', 'error');
+            })
+            .finally(() => {
+                // Remove loading state
+                selectElement.disabled = false;
+                selectElement.style.opacity = '1';
+            });
+        }
+
+        // Function to update message status
+        function updateMessageStatus(selectElement) {
+            const messageId = selectElement.getAttribute('data-message-id');
+            const newStatus = selectElement.value;
+            
+            // Show loading state
+            selectElement.disabled = true;
+            selectElement.style.opacity = '0.6';
+            
+            // Make API call to update status
+            fetch('/admin/update-message-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message_id: messageId,
+                    status: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update status badge
+                    updateMessageStatusBadge(selectElement, newStatus);
+                    
+                    // Show success message
+                    showNotification('Message status updated successfully!', 'success');
+                } else {
+                    // Revert to previous value on error
+                    selectElement.value = selectElement.getAttribute('data-previous-value') || 'unread';
+                    showNotification('Error updating status: ' + (data.error || 'Unknown error'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Revert to previous value on error
+                selectElement.value = selectElement.getAttribute('data-previous-value') || 'unread';
+                showNotification('Network error. Please try again.', 'error');
+            })
+            .finally(() => {
+                // Remove loading state
+                selectElement.disabled = false;
+                selectElement.style.opacity = '1';
+            });
+        }
+
+        // Function to update message status badge
+        function updateMessageStatusBadge(selectElement, status) {
+            // Find the status badge in the same row
+            const row = selectElement.closest('tr');
+            const statusBadge = row.querySelector('span.inline-flex');
+            
+            if (statusBadge) {
+                // Remove all status classes
+                statusBadge.className = statusBadge.className.replace(/bg-\w+-100|text-\w+-800/g, '');
+                
+                // Add base classes
+                statusBadge.classList.add('px-2', 'inline-flex', 'text-xs', 'leading-5', 'font-semibold', 'rounded-full');
+                
+                // Add status-specific classes
+                switch(status) {
+                    case 'unread':
+                        statusBadge.classList.add('bg-yellow-100', 'text-yellow-800');
+                        break;
+                    case 'read':
+                        statusBadge.classList.add('bg-blue-100', 'text-blue-800');
+                        break;
+                    case 'replied':
+                        statusBadge.classList.add('bg-green-100', 'text-green-800');
+                        break;
+                    case 'resolved':
+                        statusBadge.classList.add('bg-gray-100', 'text-gray-800');
+                        break;
+                }
+                
+                // Update badge text
+                statusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+            }
+        }
+
+        // Function to update dropdown styling based on status
+        function updateDropdownStyling(selectElement, status) {
+            // Remove all status classes
+            selectElement.className = selectElement.className.replace(/bg-\w+-50|text-\w+-800/g, '');
+            
+            // Add new status classes
+            switch(status) {
+                case 'new_request':
+                    selectElement.classList.add('bg-yellow-50', 'text-yellow-800');
+                    break;
+                case 'contacted':
+                    selectElement.classList.add('bg-blue-50', 'text-blue-800');
+                    break;
+                case 'invoice_sent':
+                    selectElement.classList.add('bg-purple-50', 'text-purple-800');
+                    break;
+                case 'tutor_assigned':
+                    selectElement.classList.add('bg-green-50', 'text-green-800');
+                    break;
+                case 'not_interested':
+                    selectElement.classList.add('bg-gray-50', 'text-gray-800');
+                    break;
+                case 'spam':
+                    selectElement.classList.add('bg-red-50', 'text-red-800');
+                    break;
+            }
+        }
+
+        // Function to show notifications
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Store previous values for dropdowns to enable reverting on error
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.status-dropdown').forEach(dropdown => {
+                dropdown.setAttribute('data-previous-value', dropdown.value);
+                dropdown.addEventListener('focus', function() {
+                    this.setAttribute('data-previous-value', this.value);
+                });
+            });
+
+            // Add event listeners for delete buttons
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const applicationId = this.getAttribute('data-id');
+                    const applicationName = this.getAttribute('data-name');
+                    showDeleteConfirmation(applicationId, applicationName);
+                });
+            });
+
+            // Add event listeners for delete request buttons
+            document.querySelectorAll('.delete-request-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const requestId = this.getAttribute('data-id');
+                    const requestName = this.getAttribute('data-name');
+                    showDeleteRequestConfirmation(requestId, requestName);
+                });
+            });
+        });
+
+        // Delete confirmation functionality
+        function showDeleteConfirmation(applicationId, applicationName) {
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            overlay.id = 'delete-modal-overlay';
+            
+            // Create modal content
+            overlay.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.861-.833-2.631 0L3.732 16.5C2.962 18.333 3.924 20 5.464 20z"></path>
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900">Confirm Delete</h3>
+                    </div>
+                    <p class="text-gray-600 mb-6">
+                        Are you sure you want to delete the application for <strong>${applicationName}</strong>? 
+                        This action cannot be undone and will also delete all associated files.
+                    </p>
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="hideDeleteConfirmation()" 
+                                class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                            Cancel
+                        </button>
+                        <button onclick="deleteApplication(${applicationId})" 
+                                class="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            // Close on overlay click
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    hideDeleteConfirmation();
+                }
+            });
+        }
+
+        function hideDeleteConfirmation() {
+            const overlay = document.getElementById('delete-modal-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+
+        function deleteApplication(applicationId) {
+            // Create and submit a form to delete the application
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/delete-tutor/${applicationId}`;
+            
+            // Add CSRF token if needed (Flask-WTF)
+            // const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            // if (csrfToken) {
+            //     const csrfInput = document.createElement('input');
+            //     csrfInput.type = 'hidden';
+            //     csrfInput.name = 'csrf_token';
+            //     csrfInput.value = csrfToken.getAttribute('content');
+            //     form.appendChild(csrfInput);
+            // }
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // Delete request confirmation functionality
+        function showDeleteRequestConfirmation(requestId, requestName) {
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            overlay.id = 'delete-request-modal-overlay';
+            
+            // Create modal content
+            overlay.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.861-.833-2.631 0L3.732 16.5C2.962 18.333 3.924 20 5.464 20z"></path>
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900">Confirm Delete</h3>
+                    </div>
+                    <p class="text-gray-600 mb-6">
+                        Are you sure you want to delete the tutor request from <strong>${requestName}</strong>? 
+                        This action cannot be undone.
+                    </p>
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="hideDeleteRequestConfirmation()" 
+                                class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                            Cancel
+                        </button>
+                        <button onclick="deleteRequest(${requestId})" 
+                                class="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            // Close on overlay click
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    hideDeleteRequestConfirmation();
+                }
+            });
+        }
+
+        function hideDeleteRequestConfirmation() {
+            const overlay = document.getElementById('delete-request-modal-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+
+        function deleteRequest(requestId) {
+            // Create and submit a form to delete the request
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/delete-request/${requestId}`;
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+</body>
+</html>

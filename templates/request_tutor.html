@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request a Tutor - MV Tutors</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .text-mv-blue { color: #2563EB; }
+        .bg-mv-blue { background-color: #2563EB; }
+        .border-mv-blue { border-color: #2563EB; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{{ url_for('index') }}" class="flex-shrink-0">
+                        <img src="{{ url_for('static', filename='images/mvtutors-logo.png') }}" alt="MV Tutors" class="h-10">
+                    </a>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="{{ url_for('index') }}#how-it-works" class="nav-link text-gray-700 hover:text-mv-blue px-3 py-2 text-sm font-medium transition-colors">How it works</a>
+                        <a href="{{ url_for('index') }}#pricing" class="nav-link text-gray-700 hover:text-mv-blue px-3 py-2 text-sm font-medium transition-colors">Pricing</a>
+                        <a href="{{ url_for('index') }}#about" class="nav-link text-gray-700 hover:text-mv-blue px-3 py-2 text-sm font-medium transition-colors">About Us</a>
+                        <a href="/contact" class="nav-link text-gray-700 hover:text-mv-blue px-3 py-2 text-sm font-medium transition-colors">Contact Us</a>
+                        <a href="https://calendly.com/mananaventures/15min" target="_blank" rel="noopener noreferrer" class="nav-link text-gray-700 hover:text-mv-blue px-3 py-2 text-sm font-medium transition-colors">Book a Call</a>
+                        <a href="{{ url_for('request_tutor') }}" class="bg-mv-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-all duration-200 transform hover:scale-105">Request Tutor</a>
+                        <a href="{{ url_for('become_tutor') }}" class="border border-mv-blue text-mv-blue px-4 py-2 rounded-lg text-sm font-medium hover:bg-mv-blue hover:text-white transition-colors">Become a Tutor</a>
+                    </div>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-gray-700 hover:text-mv-blue p-2">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
+                <a href="{{ url_for('index') }}#how-it-works" class="nav-link block text-gray-700 hover:text-mv-blue px-3 py-2 text-sm font-medium">How it works</a>
+                <a href="{{ url_for('index') }}#pricing" class="nav-link block text-gray-700 hover:text-mv-blue px-3 py-2 text-sm font-medium">Pricing</a>
+                <a href="{{ url_for('index') }}#about" class="nav-link block text-gray-700 hover:text-mv-blue px-3 py-2 text-sm font-medium">About Us</a>
+                <a href="/contact" class="nav-link block text-gray-700 hover:text-mv-blue px-3 py-2 text-sm font-medium">Contact Us</a>
+                <a href="https://calendly.com/mananaventures/15min" target="_blank" rel="noopener noreferrer" class="nav-link block text-gray-700 hover:text-mv-blue px-3 py-2 text-sm font-medium">Book a Call</a>
+                <a href="{{ url_for('request_tutor') }}" class="block bg-mv-blue text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors mb-2">Request Tutor</a>
+                <a href="{{ url_for('become_tutor') }}" class="block w-full text-left border border-mv-blue text-mv-blue px-3 py-2 rounded-lg text-sm font-medium hover:bg-mv-blue hover:text-white transition-colors">Become a Tutor</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Request Tutor Form -->
+    <section class="py-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
+                    <h1 class="text-2xl font-bold text-white">Request a Tutor</h1>
+                    <p class="text-blue-100 mt-2">Fill out this form and we'll match you with the perfect tutor for your academic needs</p>
+                </div>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="px-8 pt-6">
+                            {% for category, message in messages %}
+                                <div id="flash-message" class="{% if category == 'success' %}bg-green-100 border border-green-400 text-green-700{% elif category == 'error' %}bg-red-100 border border-red-400 text-red-700{% else %}bg-blue-100 border border-blue-400 text-blue-700{% endif %} px-4 py-3 rounded-lg mb-4 relative">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            {% if category == 'success' %}
+                                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                <strong>Success!</strong>
+                                            {% elif category == 'error' %}
+                                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                <strong>Error!</strong>
+                                            {% endif %}
+                                            {{ message }}
+                                        </div>
+                                        <button type="button" onclick="this.parentElement.parentElement.style.display='none'" class="text-gray-400 hover:text-gray-600">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Form -->
+                <form action="{{ url_for('submit_tutor_request') }}" method="POST" class="p-8 space-y-6">
+                    <!-- Personal Information -->
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Full Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="full_name" required placeholder="Enter your full name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Contact Number <span class="text-red-500">*</span>
+                            </label>
+                            <input type="tel" name="contact_number" required placeholder="e.g., +27 12 345 6789" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Email Address <span class="text-red-500">*</span>
+                        </label>
+                        <input type="email" name="email" required placeholder="your.email@example.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                    </div>
+
+                    <!-- Tutoring Service -->
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Tutoring Service <span class="text-red-500">*</span>
+                            </label>
+                            <select name="tutoring_service" id="tutoring_service" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                <option value="1_on_1">1 on 1 Tutoring</option>
+                                <option value="group">Group Tutoring</option>
+                            </select>
+                        </div>
+                        <div id="group_size_container" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Group Size <span class="text-red-500">*</span>
+                            </label>
+                            <select name="group_size" id="group_size" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                <option value="">Select group size</option>
+                                <option value="2">2 students</option>
+                                <option value="3">3 students</option>
+                                <option value="4">4 students</option>
+                                <option value="5">5 students</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Education Level -->
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">School/University</label>
+                            <select name="institution" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                <option value="">Select your institution type</option>
+                                <option value="high_school">High School</option>
+                                <option value="university">University</option>
+                                <option value="college">College</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Grade/Year</label>
+                            <select name="grade_year" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                <option value="">Select your current grade/year</option>
+                                <option value="grade_8">Grade 8</option>
+                                <option value="grade_9">Grade 9</option>
+                                <option value="grade_10">Grade 10</option>
+                                <option value="grade_11">Grade 11</option>
+                                <option value="grade_12">Grade 12</option>
+                                <option value="1st_year">1st Year</option>
+                                <option value="2nd_year">2nd Year</option>
+                                <option value="3rd_year">3rd Year</option>
+                                <option value="4th_year">4th Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Tutoring Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            Tutoring Type <span class="text-red-500">*</span>
+                        </label>
+                        <div class="flex space-x-6">
+                            <label class="flex items-center">
+                                <input type="radio" name="tutoring_type" value="online" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-2 text-gray-700">Online</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="tutoring_type" value="face_to_face" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-2 text-gray-700">Face to Face</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Subjects/Modules -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            Subjects/Modules (select all that apply)
+                        </label>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="mathematics" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Mathematics</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="physical_sciences" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Physical Sciences</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="life_sciences" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Life Sciences</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="english" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">English</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="afrikaans" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Afrikaans</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="history" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">History</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="geography" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Geography</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="accounting" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Accounting</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="economics" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Economics</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="business_studies" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Business Studies</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="information_technology" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Information Technology</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="engineering_graphics" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Engineering Graphics</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="calculus" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Calculus</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="statistics" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Statistics</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="physics" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Physics</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="chemistry" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Chemistry</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="biology" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Biology</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="subjects" value="other" id="other_subjects_checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Other</span>
+                            </label>
+                        </div>
+                        
+                        <!-- Other Subjects Input (Hidden by default) -->
+                        <div id="other_subjects_container" class="hidden mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Please specify other subjects/modules:
+                            </label>
+                            <textarea name="other_subjects" id="other_subjects_text" rows="3" placeholder="Please list all the subjects/modules you need tutoring for (e.g., Marketing, Psychology, Computer Science, etc.)" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Reason for Tutoring -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Tutoring</label>
+                        <textarea name="reason" rows="4" placeholder="Please describe what you'd like to achieve with tutoring..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"></textarea>
+                    </div>
+
+                    <!-- Preferred Start Date -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Start Date</label>
+                        <input type="date" name="start_date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                    </div>
+
+                    <!-- Additional Comments -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Additional Comments</label>
+                        <textarea name="comments" rows="4" placeholder="Any additional information or specific requirements..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-6">
+                        <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-8 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-blue-800 transform hover:scale-[1.02] transition-all duration-200 shadow-lg">
+                            Submit Request
+                        </button>
+                        <p class="text-center text-sm text-gray-500 mt-4">
+                            We'll contact you within 24 hours to discuss your tutoring needs and match you with the perfect tutor.
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-600">&copy; 2025 MV Tutors. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        $(document).ready(function() {
+            // Mobile menu toggle
+            $('#mobile-menu-btn').click(function() {
+                $('#mobile-menu').toggleClass('hidden');
+            });
+            
+            // Handle tutoring service change
+            $('#tutoring_service').change(function() {
+                var selectedService = $(this).val();
+                var groupSizeContainer = $('#group_size_container');
+                var groupSizeSelect = $('#group_size');
+                
+                if (selectedService === 'group') {
+                    groupSizeContainer.removeClass('hidden');
+                    groupSizeSelect.prop('required', true);
+                } else {
+                    groupSizeContainer.addClass('hidden');
+                    groupSizeSelect.prop('required', false);
+                    groupSizeSelect.val(''); // Clear selection
+                }
+            });
+
+            // Handle "Other" subjects checkbox
+            $('#other_subjects_checkbox').change(function() {
+                var otherSubjectsContainer = $('#other_subjects_container');
+                var otherSubjectsText = $('#other_subjects_text');
+                
+                if ($(this).is(':checked')) {
+                    otherSubjectsContainer.removeClass('hidden');
+                    otherSubjectsText.prop('required', true);
+                } else {
+                    otherSubjectsContainer.addClass('hidden');
+                    otherSubjectsText.prop('required', false);
+                    otherSubjectsText.val(''); // Clear the text
+                }
+            });
+
+            // Form validation
+            $('form').on('submit', function(e) {
+                var tutoringService = $('#tutoring_service').val();
+                var groupSize = $('#group_size').val();
+                
+                if (tutoringService === 'group' && !groupSize) {
+                    e.preventDefault();
+                    alert('Please select a group size for group tutoring.');
+                    return false;
+                }
+            });
+        });
+    </script>
+
+    <!-- Flash Message Enhancement Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('#flash-message');
+            
+            flashMessages.forEach(function(message) {
+                // Add slide-down animation
+                message.style.transform = 'translateY(-20px)';
+                message.style.opacity = '0';
+                message.style.transition = 'all 0.5s ease-in-out';
+                
+                // Animate in
+                setTimeout(function() {
+                    message.style.transform = 'translateY(0)';
+                    message.style.opacity = '1';
+                }, 100);
+                
+                // Auto-hide after 5 seconds for success messages
+                if (message.classList.contains('bg-green-100')) {
+                    setTimeout(function() {
+                        message.style.transform = 'translateY(-20px)';
+                        message.style.opacity = '0';
+                        setTimeout(function() {
+                            message.style.display = 'none';
+                        }, 500);
+                    }, 5000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

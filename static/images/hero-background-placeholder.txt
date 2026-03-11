@@ -1,0 +1,3 @@
+# Hero Background Image Placeholder
+# Please replace this file with your actual hero-background.png image
+# Recommended size: 1920x1080 pixels or higher resolution
